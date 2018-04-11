@@ -1,18 +1,19 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8"/>
-  <title>Robotcorder</title>
-  <link async rel="stylesheet" type="text/css" href="../vendors/jquery-ui.min.css"/>
-  <link async rel="stylesheet" type="text/css" href="../assets/style.css">
-  <script src="../vendors/jquery-3.1.1.min.js"></script>
-  <script src="../vendors/jquery-ui.min.js"></script>
-  <script src="../vendors/clipboard-1.71.min.js"></script>
+    <meta charset="utf-8" />
+    <title>Robotcorder</title>
+    <link async rel="stylesheet" type="text/css" href="../vendors/jquery-ui.min.css" />
+    <link async rel="stylesheet" type="text/css" href="../assets/style.css">
+    <script src="../vendors/jquery-3.1.1.min.js"></script>
+    <script src="../vendors/jquery-ui.min.js"></script>
+    <script src="../vendors/clipboard-1.71.min.js"></script>
 </head>
 
 <body class="container" tabindex="-1">
-  <div class="padding">
-    <span>
+    <div class="padding">
+        <span>
       <button class="btn btn-wide" id="record" tabindex="-1" title="record user action">
         record
       </button>
@@ -38,40 +39,41 @@
       </button>
     </span>
 
-    <span class="btn-thin">
+        <span class="btn-thin">
       <button class="btn" id="copy" tabindex="-1" title="copy to clipboard" data-clipboard-target="#textarea-script"></button>
       <button class="btn" id="settings" tabindex="-1" title="show/hide settings"></button>
       <button class="btn" id="info" tabindex="-1" title="open instructions in another tab"></button>
       <button class="btn" id="like" tabindex="-1" title="like me!"></button>
     </span>
-  </div>
-
-  <div id="settings-panel" class="pad hidden">
-    <div class="panel-row">
-      <span>Drag to reorder locators priority</span>
-      <ul id="sortable" class="ui-sortable"/>
     </div>
 
-    <div class="panel-row">
-      <div>
-        <input type="checkbox" id="demo" />
-        <label for="demo"> Add a 3s sleep after each action (for demo) </label>
-      </div>
-      <div>
-        <input type="checkbox" id="verify" />
-        <label for="verify">Check page contains element before performing the action</label>
-      </div>
+    <div id="settings-panel" class="pad hidden">
+        <div class="panel-row">
+            <span>Drag to reorder locators priority</span>
+            <ul id="sortable" class="ui-sortable" />
+        </div>
+
+        <div class="panel-row">
+            <div>
+                <input type="checkbox" id="demo" />
+                <label for="demo"> Add a 3s sleep after each action (for demo) </label>
+            </div>
+            <div>
+                <input type="checkbox" id="verify" />
+                <label for="verify">Check page contains element before performing the action</label>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="pad">
-    <textarea id="textarea-script" tabindex="-1" readonly title="steps"></textarea>
-  </div>
+    <div class="pad">
+        <textarea id="textarea-script" tabindex="-1" title="steps"></textarea>
+    </div>
 
-  <div class="pad">
-    <textarea class="hidden" id="textarea-log" tabindex="-1" readonly></textarea>
-  </div>
+    <div class="pad">
+        <textarea class="hidden" id="textarea-log" tabindex="-1" readonly></textarea>
+    </div>
 
-  <script src="popup.js"></script>
+    <script src="popup.js"></script>
 </body>
+
 </html>
