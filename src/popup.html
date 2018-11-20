@@ -4,75 +4,98 @@
 <head>
     <meta charset="utf-8" />
     <title>Robotcorder</title>
+    <link async rel="stylesheet" type="text/css" href="../vendors/bootstrap-4.1.0/css/bootstrap.min.css" />
     <link async rel="stylesheet" type="text/css" href="../vendors/jquery-ui.min.css" />
     <link async rel="stylesheet" type="text/css" href="../assets/style.css">
     <script src="../vendors/jquery-3.1.1.min.js"></script>
+    <script src="../vendors/popper.min.js"></script>
+    <script src="../vendors/bootstrap-4.1.0/js/bootstrap.min.js"></script>
     <script src="../vendors/jquery-ui.min.js"></script>
     <script src="../vendors/clipboard-1.71.min.js"></script>
 </head>
 
-<body class="container" tabindex="-1">
+<body tabindex="-1">
     <div class="padding">
         <span>
-      <button class="btn btn-wide" id="record" tabindex="-1" title="record user action">
+      <button class="btn btn-wide" id="record" tabindex="-1" data-toggle="tooltip" data-placement="bottom" title="record user action">
         record
       </button>
 
-      <button class="btn btn-wide" id="resume" tabindex="-1" title="resume with the recording">
+      <button class="btn btn-wide" id="resume" tabindex="-1" data-toggle="tooltip" data-placement="bottom" title="resume with the recording">
         resume
       </button>
 
-      <button class="btn btn-wide" id="stop" tabindex="-1" title="stop the recording">
+      <button class="btn btn-wide" id="stop" tabindex="-1" data-toggle="tooltip" data-placement="bottom" title="stop the recording">
         stop
       </button>
 
-      <button class="btn btn-wide" id="pause" tabindex="-1" title="pause the recording">
+      <button class="btn btn-wide" id="pause" tabindex="-1" data-toggle="tooltip" data-placement="bottom" title="pause the recording">
         pause
       </button>
 
-      <button class="btn btn-wide" id="scan" tabindex="-1" title="scan entire page. might be slow">
+      <button class="btn btn-wide" id="scan" tabindex="-1" data-toggle="tooltip" data-placement="bottom" title="scan entire page. might be slow">
         scan
       </button>
 
-      <button class="btn btn-wide" id="save" tabindex="-1" disabled title="download test script">
+      <button class="btn btn-wide" id="save" tabindex="-1" data-toggle="tooltip" data-placement="bottom" disabled title="download test script">
         save
       </button>
     </span>
 
         <span class="btn-thin">
-      <button class="btn" id="copy" tabindex="-1" title="copy to clipboard" data-clipboard-target="#textarea-script"></button>
-      <button class="btn" id="settings" tabindex="-1" title="show/hide settings"></button>
-      <button class="btn" id="info" tabindex="-1" title="open instructions in another tab"></button>
-      <button class="btn" id="like" tabindex="-1" title="like me!"></button>
+      <button class="btn" id="copy" tabindex="-1" data-toggle="tooltip" data-placement="bottom" title="copy to clipboard" data-clipboard-target="#textarea-script"></button>
+      <button class="btn" type="button" id="settings" tabindex="-1" title="show/hide settings" data-toggle="collapse" data-target=".multi-collapse" aria-expanded="false" aria-controls=".multi-collapse"></button>
+      <button class="btn" id="info" tabindex="-1" data-toggle="tooltip" data-placement="bottom" title="open instructions in another tab"></button>
+      <button class="btn" id="like" tabindex="-1" data-toggle="tooltip" data-placement="bottom" title="like me!"></button>
     </span>
     </div>
 
-    <div id="settings-panel" class="pad hidden">
-        <div class="panel-row">
-            <span>Drag to reorder locators priority</span>
-            <ul id="sortable" class="ui-sortable" />
+    <div id="settings-panel" class="row">
+        <div class="col">
+            <div class="collapse multi-collapse">
+                <span>Drag to reorder locators priority</span>
+                <ul id="sortable" class="ui-sortable" />
+            </div>
+
+            <div class="collapse multi-collapse">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" id="demo" class="custom-control-input">
+                    <label class="custom-control-label" for="demo"> Add a 3s sleep after each action (for demo) </label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" id="verify" class="custom-control-input">
+                    <label class="custom-control-label" for="verify">Check page contains element before performing the action</label>
+                </div>
+            </div>
         </div>
 
-        <div class="panel-row">
-            <div>
-                <input type="checkbox" id="demo" />
-                <label for="demo"> Add a 3s sleep after each action (for demo) </label>
+        <div class="col">
+            <div class="collapse multi-collapse row">
+                <span class="col-4">Enable edit mode</span>
+                <span class="switch">
+                    <input id="editable" type="checkbox" />
+                    <label for="editable" class="badge-primary"></label>
+                </span>
             </div>
-            <div>
-                <input type="checkbox" id="verify" />
-                <label for="verify">Check page contains element before performing the action</label>
+            <div class="collapse multi-collapse row">
+                <span class="col-4">Enable debug mode</span>
+                <span class="switch">
+                    <input id="debug" type="checkbox" />
+                    <label for="debug" class="badge-primary"></label>
+                </span>
             </div>
         </div>
     </div>
 
-    <div class="pad">
-        <textarea id="textarea-script" tabindex="-1" title="steps"></textarea>
+    <div class="form-group">
+        <textarea id="textarea-script" rows="6" tabindex="-1" data-toggle="tooltip" data-placement="bottom" title="test steps" class="form-control" readonly></textarea>
     </div>
 
-    <div class="pad">
-        <textarea class="hidden" id="textarea-log" tabindex="-1" readonly></textarea>
+    <div class="form-group">
+        <textarea rows="6" id="textarea-log" tabindex="-1" data-toggle="tooltip" data-placement="bottom" title="debug log" class="form-control hidden" readonly></textarea>
     </div>
 
+    <script src="keywords.js"></script>
     <script src="popup.js"></script>
 </body>
 

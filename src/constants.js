@@ -25,5 +25,4 @@ const instruction = 'Robotcorder\n' +
   '* Scan the page for inputs\n' +
   '* Config the locators priorities that best suit your app\n' +
   '\n' +
-  '\n' +
   'Automating test automation 🤗';

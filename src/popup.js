@@ -1,5 +1,4 @@
 /* global document $ chrome Clipboard */
-const debug = false;
 const gaAccount = 'UA-88380525-1';
 const version = '0.3.0';
 
@@ -42,14 +41,14 @@ const copyStatus = (className) => {
 
 clipboard.on('success', (e) => {
     copyStatus('copy-ok');
-    analytics(['_trackEvent', 'copy', 'ok']);
+    //analytics(['_trackEvent', 'copy', 'ok']);
 
     e.clearSelection();
 });
 
 clipboard.on('error', (e) => {
     copyStatus('copy-fail');
-    analytics(['_trackEvent', 'copy', 'nok']);
+    //analytics(['_trackEvent', 'copy', 'nok']);
     /* eslint-disable no-console */
     console.error('Action:', e.action);
     console.error('Trigger:', e.trigger);
@@ -99,6 +98,9 @@ function enable(array, isEnabled) {
 function toggle(e) {
     logger(e.target.id);
     if (e.target.id === 'record') {
+        host.windows.getAll({ windowTypes: ['popup'] }, function(window) {
+            window.focused = false;
+        });
         show(['stop', 'pause'], true);
         show(['record', 'resume', 'scan'], false);
         enable(['settings-panel'], false);
@@ -122,9 +124,6 @@ function toggle(e) {
         enable(['settings-panel'], true);
 
         $('#sortable').sortable('enable');
-    } else if (e.target.id === 'settings') {
-        analytics(['_trackEvent', 'settings', '⚙️']);
-        document.getElementById('settings-panel').classList.toggle('hidden');
     }
 
     if ((e.canSave === false) || (e.target.id === 'record')) {
@@ -134,6 +133,19 @@ function toggle(e) {
     }
     if (e.demo) { document.getElementById('demo').checked = e.demo; }
     if (e.verify) { document.getElementById('verify').checked = e.verify; }
+    if (e.editable) {
+        document.getElementById('editable').checked = e.editable;
+        if (e.editable) {
+            $('#textarea-script').attr('readonly', false);
+            initauto();
+        } else {
+            $('#textarea-script').attr('readonly', true);
+        }
+    }
+    if (e.debug) {
+        document.getElementById('debug').checked = e.debug;
+        e.debug ? show(['textarea-log'], true) : show(['textarea-log'], false);
+    }
 }
 
 function busy(e) {
@@ -153,27 +165,143 @@ function operation(e) {
     } else {
         host.runtime.sendMessage({ operation: e.target.id, locators }, display);
     }
+    //analytics(['_trackEvent', e.target.id, '^-^']);
+}
 
-
-    analytics(['_trackEvent', e.target.id, '^-^']);
+function isChecked(locator) {
+    return document.getElementById(locator).checked;
 }
 
 function settings(e) {
+    if (e.target.id === 'editable') {
+        if (isChecked('editable')) {
+            $('#textarea-script').attr('readonly', false);
+            initauto();
+        } else {
+            $('#textarea-script').attr('readonly', true);
+        }
+    } else if (e.target.id === 'debug') {
+        $('#textarea-log').toggleClass('hidden');
+    }
     const locators = $('#sortable').sortable('toArray', { attribute: 'id' });
-    const demo = document.getElementById('demo').checked;
-    const verify = document.getElementById('verify').checked;
-    host.runtime.sendMessage({ operation: 'settings', locators, demo, verify });
-    analytics(['_trackEvent', 'setting', e.target.id]);
+    const demo = isChecked('demo');
+    const verify = isChecked('verify');
+    const editable = isChecked('editable');
+    const debug = isChecked('debug');
+    host.runtime.sendMessage({ operation: 'settings', locators, demo, verify, editable, debug });
+    //analytics(['_trackEvent', 'setting', e.target.id]);
 }
 
 function info() {
     host.runtime.sendMessage({ operation: 'info' });
 
-    analytics(['_trackEvent', 'info', 'ℹ️']);
+    //analytics(['_trackEvent', 'info', 'ℹ️']);
 }
 
 function like() {
-    analytics(['_trackEvent', 'like', '👍']);
+    //analytics(['_trackEvent', 'like', '👍']);
+}
+
+function initauto() {
+
+    var data = parse(keywords);
+
+    $.widget("custom.catcomplete", $.ui.autocomplete, {
+        _create: function() {
+            this._super();
+            this.widget().menu("option", "items", "> :not(.ui-autocomplete-category)");
+        },
+        _renderMenu: function(ul, items) {
+            var that = this,
+                currentCategory = "";
+            $.each(items, function(index, item) {
+                var li;
+                if (item.category != currentCategory) {
+                    ul.append("<li class='ui-autocomplete-category'>" + item.category + "</li>");
+                    currentCategory = item.category;
+                }
+                li = that._renderItemData(ul, item);
+                if (item.category) {
+                    li.attr("aria-label", item.category + " : " + item.label);
+                }
+            });
+        },
+        _renderItem: function(ul, item) {
+            return $("<li>")
+                .append("<div>" + item.label + "<br>" + item.desc + "</div>")
+                .appendTo(ul);
+        }
+
+    });
+
+    $("#textarea-script").on("keydown", function(event) {
+        if (event.keyCode === $.ui.keyCode.TAB &&
+            $(this).autocomplete("instance").menu.active) {
+            event.preventDefault();
+        }
+    }).catcomplete({
+        delay: 0,
+        source: function(request, response) {
+            // delegate back to autocomplete, but extract the last term
+            response($.ui.autocomplete.filter(
+                data, extractLast(request.term)));
+        },
+        open: function() {
+            storage.get('editable', function(is) {
+                if (is.editable) {
+                    $('body').css('height', '350px');
+                }
+            });
+        },
+        close: function() {
+            $('body').css('height', '208px');
+        },
+        focus: function() {
+            // prevent value inserted on focus
+            return false;
+        },
+        select: function(event, ui) {
+            var terms = split(this.value);
+            // remove the current input
+            terms.pop();
+            // add the selected item
+            terms.push(ui.item.value + "   " + ui.item.argm + '\n');
+            // add placeholder to get the comma-and-space at the end
+            this.value = terms.join('\n');
+            update();
+            return false;
+        },
+        minlength: 0
+    });
+}
+
+function split(val) {
+    return val.split(/\n\s*/);
+}
+
+function extractLast(term) {
+    return split(term).pop();
+}
+
+function parse(data) {
+    var cats = [];
+    for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+            const element = data[key];
+            var cat = $.map(element, function(item) {
+                return {
+                    label: item.keyw,
+                    category: key,
+                    desc: item.desc,
+                    argm: item.argm.replace(/,/g, "   ")
+                };
+            });
+
+            cats = cats.concat(cat);
+        }
+    }
+
+    return cats;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -184,6 +312,8 @@ document.addEventListener('DOMContentLoaded', () => {
         isBusy: false,
         demo: false,
         verify: false,
+        editable: false,
+        debug: false,
         locators: []
     }, (state) => {
         display({ message: state.message });
@@ -193,7 +323,9 @@ document.addEventListener('DOMContentLoaded', () => {
             canSave: state.canSave,
             isBusy: state.isBusy,
             demo: state.demo,
-            verify: state.verify
+            verify: state.verify,
+            editable: state.editable,
+            debug: state.debug
         });
         setTimeout(() => {
             const sortable = document.getElementById('sortable');
@@ -207,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 200);
     });
 
-    debug ? document.getElementById('textarea-log').classList.remove('hidden') : 0;
+    //debug ? document.getElementById('textarea-log').classList.remove('hidden') : 0;
     //Add on click listener to all buttons
     ['record', 'resume', 'stop', 'pause', 'save', 'scan'].forEach((id) => {
         document.getElementById(id).addEventListener('click', operation);
@@ -217,9 +349,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(id).addEventListener('change', settings);
     });
 
+    ['editable', 'debug'].forEach((id) => {
+        document.getElementById(id).addEventListener('change', settings);
+    });
+
     document.getElementById('like').addEventListener('click', like);
     document.getElementById('info').addEventListener('click', info);
-    document.getElementById('settings').addEventListener('click', toggle);
     document.getElementById('textarea-script').addEventListener('change', update);
 
     $('#sortable').sortable({ update: settings });

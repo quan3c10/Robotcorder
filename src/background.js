@@ -12,6 +12,8 @@ const maxLength = 5000;
 let recordTab = 0;
 let demo = false;
 let verify = false;
+let editable = false;
+let debug = false;
 
 storage.set({
     locators: ['for', 'name', 'id', 'title', 'href', 'class'],
@@ -19,6 +21,8 @@ storage.set({
     message: instruction,
     demo: false,
     verify: false,
+    editable: false,
+    debug: false,
     canSave: false,
     isBusy: false
 });
@@ -113,7 +117,9 @@ host.runtime.onMessage.addListener(
         } else if (operation === 'settings') {
             demo = request.demo;
             verify = request.verify;
-            storage.set({ locators: request.locators, demo, verify });
+            editable = request.editable;
+            debug = request.debug;
+            storage.set({ locators: request.locators, demo, verify, editable, debug });
         } else if (operation === 'load') {
             storage.get({ operation: 'stop', locators: [] }, (state) => {
                 content.sendMessage(sender.tab.id, { operation: state.operation, locators: state.locators });
